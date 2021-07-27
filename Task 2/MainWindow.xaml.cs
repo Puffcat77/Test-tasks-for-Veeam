@@ -1,6 +1,8 @@
 ﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 
@@ -45,7 +47,14 @@ namespace Task_2
             FillLanguage();
             var vacancies = browser.FindElements(By.XPath(vacanciesSelectorXPath)).ToList();
             actualVacNumTextBox.Text = "" + vacancies.Count;
-            differenceVacNumTextBox.Text = "" + (vacancies.Count - int.Parse(expectedVacNumTextBox.Text));
+
+            try
+            {
+                var expectedVacNum = int.Parse(expectedVacNumTextBox.Text);
+                if (expectedVacNum < 0) throw new Exception();
+                differenceVacNumTextBox.Text = "" + (vacancies.Count - expectedVacNum);
+            }
+            catch (Exception) { MessageBox.Show("Ожидаемое число вакансий должно быть неотрицательным целым числом"); }
         }
 
         private void HideCoockiesBtn() 
@@ -60,7 +69,7 @@ namespace Task_2
             if (languageSelector.Text != languageTextBox.Text)
             {
                 try { languageSelector.Click(); }
-                catch (System.Exception) { return; }
+                catch (Exception) { return; }
                 var languages = browser.FindElements(By.XPath(langOptionXPath))
                     .ToList();
 
@@ -75,7 +84,7 @@ namespace Task_2
                         if (langLabel.Text == languageTextBox.Text) langLabel.Click();
                     }
                 }
-                catch (System.Exception) { MessageBox.Show("Данного языка нет в списке языков"); }
+                catch (Exception) { MessageBox.Show("Данного языка нет в списке языков"); }
                 finally { languageSelector.Click(); }
             }
         }
@@ -101,7 +110,7 @@ namespace Task_2
                     var department = departments.FindElement(By.LinkText(departmentTextBox.Text));
                     if (department != null) department.Click();
                 }
-                catch (System.Exception) { MessageBox.Show("Данного отдела нет в списке отделов"); }
+                catch (Exception) { MessageBox.Show("Данного отдела нет в списке отделов"); }
             }
         }
     }
