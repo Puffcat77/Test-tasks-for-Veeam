@@ -57,13 +57,13 @@ namespace monitor
                 Console.WriteLine("There is no processes with such name");
                 return;
             }
-            Console.WriteLine("There are {0} processes running with such name", processes.Count);
+            // Console.WriteLine("There are {0} processes running with such name", processes.Count);
             var checkAmount = lifeTime / checkTime;
             for (int i = 0; i < checkAmount && !AreAllExited(processes); i++)
             {
                 processes = processes.Where(p => !p.HasExited).ToList();
-                Console.WriteLine("{0} processes are still active, {1:0.0} minutes of life time is left", 
-                    processes.Count, lifeTime - i * checkTime);
+                // Console.WriteLine("{0} processes are still active, {1:0.0} minutes of life time is left", 
+                //    processes.Count, lifeTime - i * checkTime);
                 Thread.Sleep(TimeSpan.FromMinutes(checkTime));
             }
             if (!AreAllExited(processes))
@@ -71,13 +71,10 @@ namespace monitor
                 foreach (var p in processes) p.Kill();
                 Console.WriteLine("{0} processes has been terminated", procName);
             }
-            else
-                Console.WriteLine("{0} processes has exited before terminating", procName);
+            //else
+            //    Console.WriteLine("{0} processes has exited before terminating", procName);
         }
 
-        private static bool AreAllExited(List<Process> processes)
-        {
-            return processes.Select(p => p.HasExited).All(ex => ex);
-        }
+        private static bool AreAllExited(List<Process> processes) => processes.Select(p => p.HasExited).All(ex => ex);
     }
 }
