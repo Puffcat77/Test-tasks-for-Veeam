@@ -36,16 +36,22 @@ namespace Task_2
             browser = new ChromeDriver();
             browser.Manage().Window.Maximize();
             browser.Navigate().GoToUrl("https://careers.veeam.ru/vacancies");
-            browser.FindElement(By.Id(coockiesBtnId)).Click();
         }
 
         private void openBrowserBtn_Click(object sender, RoutedEventArgs e)
         {
+            HideCoockiesBtn();
             FillDepartment();
             FillLanguage();
             var vacancies = browser.FindElements(By.XPath(vacanciesSelectorXPath)).ToList();
             actualVacNumTextBox.Text = "" + vacancies.Count;
             differenceVacNumTextBox.Text = "" + (vacancies.Count - int.Parse(expectedVacNumTextBox.Text));
+        }
+
+        private void HideCoockiesBtn() 
+        {
+            var btn = browser.FindElement(By.Id(coockiesBtnId));
+            if (btn.Displayed) btn.Click();
         }
 
         private void FillLanguage()

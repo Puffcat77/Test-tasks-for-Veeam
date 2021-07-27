@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Threading;
+using System.Collections.Generic;
 
 namespace monitor
 {
@@ -19,46 +20,64 @@ namespace monitor
     {
         static void Main(string[] args)
         {
+            Console.WriteLine();
             if (!IsInputValid(args))
             {
-                Console.WriteLine("Parameters should be: [proccess name] [number of minutes of life time] [number of minutes of frequency check]");
+                Console.WriteLine("Parameters should be: [proccess name] [number of minutes of life time] " +
+                    "[number of minutes of check frequency]\n");
                 return;
             }
             var procName = args[0];
-            var lifeTime = int.Parse(args[1]);
-            var checkTime = int.Parse(args[2]);
+            var lifeTime = double.Parse(args[1]);
+            var checkTime = double.Parse(args[2]);
             MonitorProcess(procName, lifeTime, checkTime);
         }
 
         private static bool IsInputValid(string[] args)
         {
-            if (args.Length != 3) return false;
-            if (!int.TryParse(args[1], out _) || !int.TryParse(args[2], out _)) return false;
+            if (args.Length != 3) { Console.WriteLine("There must be three parameters"); return false; }
+            double frequency;
+            double lifeTime;
+            if (!double.TryParse(args[1], out lifeTime) || lifeTime < 0 || 
+                !double.TryParse(args[2], out frequency) || frequency <= 0) 
+            { 
+                Console.WriteLine("Minutes must be an integer or a fractional positive number with a comma separator\n" +
+                    "Life time should not be negative, while check frequency must be positive\n");
+                return false; 
+            }
             return true;
         }
 
-        private static void MonitorProcess(string procName, int lifeTime, int checkTime)
+        private static void MonitorProcess(string procName, double lifeTime, double checkTime)
         {
             var allProcesses = Process.GetProcesses();
-            var proc = allProcesses.FirstOrDefault((p) => p.ProcessName == procName);
-            if (proc == null)
+            var processes = allProcesses.Where((p) => p.ProcessName == procName).ToList();
+            if (processes == null || processes.Count == 0)
             {
-                Console.WriteLine("There is no process with such name");
+                Console.WriteLine("There is no processes with such name");
                 return;
             }
+            Console.WriteLine("There are {0} processes running with such name", processes.Count);
             var checkAmount = lifeTime / checkTime;
-            for (int i = 0; i < checkAmount && !proc.HasExited; i++)
+            for (int i = 0; i < checkAmount && !AreAllExited(processes); i++)
             {
-                Console.WriteLine("{0} is still active", procName);
+                processes = processes.Where(p => !p.HasExited).ToList();
+                Console.WriteLine("{0} processes are still active, {1:0.0} minutes of life time is left", 
+                    processes.Count, lifeTime - i * checkTime);
                 Thread.Sleep(TimeSpan.FromMinutes(checkTime));
             }
-            if (!proc.HasExited)
+            if (!AreAllExited(processes))
             {
-                proc.Kill();
-                Console.WriteLine("{0} has been terminated", procName);
+                foreach (var p in processes) p.Kill();
+                Console.WriteLine("{0} processes has been terminated", procName);
             }
             else
-                Console.WriteLine("{0} has exited before terminating", procName);
+                Console.WriteLine("{0} processes has exited before terminating", procName);
+        }
+
+        private static bool AreAllExited(List<Process> processes)
+        {
+            return processes.Select(p => p.HasExited).All(ex => ex);
         }
     }
 }
