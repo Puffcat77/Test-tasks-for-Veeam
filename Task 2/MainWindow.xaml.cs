@@ -45,12 +45,12 @@ namespace Task_2
             HideCoockiesBtn();
             FillDepartment();
             FillLanguage();
-            var vacancies = browser.FindElements(By.XPath(vacanciesSelectorXPath)).ToList();
+            List<IWebElement> vacancies = browser.FindElements(By.XPath(vacanciesSelectorXPath)).ToList();
             actualVacNumTextBox.Text = "" + vacancies.Count;
 
             try
             {
-                var expectedVacNum = int.Parse(expectedVacNumTextBox.Text);
+                int expectedVacNum = int.Parse(expectedVacNumTextBox.Text);
                 if (expectedVacNum < 0) throw new Exception();
                 differenceVacNumTextBox.Text = "" + (vacancies.Count - expectedVacNum);
             }
@@ -59,18 +59,18 @@ namespace Task_2
 
         private void HideCoockiesBtn() 
         {
-            var btn = browser.FindElement(By.Id(coockiesBtnId));
+            IWebElement btn = browser.FindElement(By.Id(coockiesBtnId));
             if (btn.Displayed) btn.Click();
         }
 
         private void FillLanguage()
         {
-            var languageSelector = browser.FindElement(By.CssSelector(langSelCssSelector));
+            IWebElement languageSelector = browser.FindElement(By.CssSelector(langSelCssSelector));
             if (languageSelector.Text != languageTextBox.Text)
             {
                 try { languageSelector.Click(); }
                 catch (Exception) { return; }
-                var languages = browser.FindElements(By.XPath(langOptionXPath))
+                List<IWebElement> languages = browser.FindElements(By.XPath(langOptionXPath))
                     .ToList();
 
                 UnselectLanguages(languages);
@@ -79,8 +79,8 @@ namespace Task_2
                 {
                     for (int i = 0; i < languages.Count; i++)
                     {
-                        var lang = languages[i];
-                        var langLabel = lang.FindElement(By.TagName("label"));
+                        IWebElement lang = languages[i];
+                        IWebElement langLabel = lang.FindElement(By.TagName("label"));
                         if (langLabel.Text == languageTextBox.Text) langLabel.Click();
                     }
                 }
@@ -91,23 +91,23 @@ namespace Task_2
 
         private void UnselectLanguages(List<IWebElement> languages)
         {
-            foreach (var lang in languages)
+            foreach (IWebElement lang in languages)
             {
-                var isChecked = lang.FindElement(By.TagName("input")).GetAttribute("checked");
+                string isChecked = lang.FindElement(By.TagName("input")).GetAttribute("checked");
                 if (isChecked == "true") lang.FindElement(By.TagName("label")).Click();
             }
         }
 
         private void FillDepartment()
         {
-            var departmentSelector = browser.FindElement(By.CssSelector(departmentCssSelector));
+            IWebElement departmentSelector = browser.FindElement(By.CssSelector(departmentCssSelector));
             if (departmentSelector.Text != departmentTextBox.Text)
             {
                 departmentSelector.Click();
                 try
                 {
-                    var departments = browser.FindElement(By.CssSelector(departmentsCssSelector));
-                    var department = departments.FindElement(By.LinkText(departmentTextBox.Text));
+                    IWebElement departments = browser.FindElement(By.CssSelector(departmentsCssSelector));
+                    IWebElement department = departments.FindElement(By.LinkText(departmentTextBox.Text));
                     if (department != null) department.Click();
                 }
                 catch (Exception) { MessageBox.Show("Данного отдела нет в списке отделов"); }

@@ -27,9 +27,9 @@ namespace monitor
                     "[number of minutes of check frequency]\n");
                 return;
             }
-            var procName = args[0];
-            var lifeTime = double.Parse(args[1]);
-            var checkTime = double.Parse(args[2]);
+            string procName = args[0];
+            double lifeTime = double.Parse(args[1]);
+            double checkTime = double.Parse(args[2]);
             MonitorProcess(procName, lifeTime, checkTime);
         }
 
@@ -50,15 +50,15 @@ namespace monitor
 
         private static void MonitorProcess(string procName, double lifeTime, double checkTime)
         {
-            var allProcesses = Process.GetProcesses();
-            var processes = allProcesses.Where((p) => p.ProcessName == procName).ToList();
+            Process[] allProcesses = Process.GetProcesses();
+            List<Process> processes = allProcesses.Where((p) => p.ProcessName == procName).ToList();
             if (processes == null || processes.Count == 0)
             {
                 Console.WriteLine("There is no processes with such name");
                 return;
             }
             // Console.WriteLine("There are {0} processes running with such name", processes.Count);
-            var checkAmount = lifeTime / checkTime;
+            double checkAmount = lifeTime / checkTime;
             for (int i = 0; i < checkAmount && !AreAllExited(processes); i++)
             {
                 processes = processes.Where(p => !p.HasExited).ToList();
@@ -68,7 +68,7 @@ namespace monitor
             }
             if (!AreAllExited(processes))
             {
-                foreach (var p in processes) p.Kill();
+                foreach (Process p in processes) p.Kill();
                 Console.WriteLine("{0} processes has been terminated", procName);
             }
             //else
